@@ -1,0 +1,42 @@
+[
+  {
+    "year": 2025,
+    "batch": "一批",
+    "category": "理科",
+    "school": "山东大学",
+    "major": "计算机科学与技术",
+    "score": 676,
+    "rank": 8,
+    "remark": "历史最低录取分"
+  },
+  {
+    "year": 2025,
+    "batch": "一批",
+    "category": "文科",
+    "school": "中国人民大学",
+    "major": "法学",
+    "score": 688,
+    "rank": 19,
+    "remark": "历史最低录取分"
+  },
+  {
+    "year": 2024,
+    "batch": "二批",
+    "category": "理科",
+    "school": "山东师范大学",
+    "major": "电子信息工程",
+    "score": 538,
+    "rank": 11000,
+    "remark": "参考分数线"
+  },
+  {
+    "year": 2023,
+    "batch": "高职",
+    "category": "高职",
+    "school": "青岛职业技术学院",
+    "major": "计算机网络技术",
+    "score": 345,
+    "rank": 221000,
+    "remark": "历史最低录取分"
+  }
+]

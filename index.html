@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>有数志愿 - 山东高考专业填报团队</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div>
+        <h1>有数志愿 - 山东高考专业填报团队 <span style="font-size:0.45em;font-weight:400;opacity:0.85">学长学姐陪伴你稳稳上岸！</span></h1>
+        <p>基于 2023-2025 年山东省录取数据 + AI 深度分析，为 2026 考生提供 96 志愿冲稳保推荐。</p>
+      </div>
+      <div class="hint">
+        <strong>使用说明：</strong>
+        输入你的高考位次（必填）和分数（选填），选择选科科目后查询。<br/>
+        <strong>提示：</strong>位次为主要依据。预览模式下每档仅显示3所代表性院校。
+        <span id="modeToggle" style="float:right;cursor:pointer;background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:6px;font-size:0.8rem;user-select:none" onclick="toggleMode()" title="内部人员点击切换完整/预览模式">🔒 免费预览版</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel" id="queryPanel">
+        <h2>输入你的信息</h2>
+        <div class="form-grid">
+          <label>
+            位次 <small style="color:var(--chong)">*必填</small>
+            <input id="rankInput" type="number" placeholder="如：50000" min="1" />
+          </label>
+          <label>
+            分数 <small>选填</small>
+            <input id="scoreInput" type="number" placeholder="如：580" min="0" max="750" />
+          </label>
+          <label>
+            批次 <small>选填</small>
+            <select id="batchSelect">
+              <option value="">全部批次</option>
+              <option value="普通类一段">普通类一段</option>
+              <option value="一段">一段</option>
+              <option value="提前批">提前批</option>
+              <option value="高职">高职</option>
+            </select>
+          </label>
+          <label>
+            院校 / 专业关键词 <small>选填</small>
+            <input id="keywordInput" type="text" placeholder="如：山东大学、计算机" />
+          </label>
+          <label style="grid-column: span 2;">
+            选科科目 <small style="color:var(--chong)">*必填（至少选1科，山东3+3模式）</small>
+            <div class="subjects-grid" id="subjectsContainer"></div>
+          </label>
+        </div>
+        <div style="margin-top:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:0.88rem;font-weight:500">专业方向偏好</span>
+            <small style="color:var(--text-muted)">可选多项，留空=不限</small>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px" id="majorTags"></div>
+          <div style="margin-top:10px">
+            <span style="font-size:0.85rem;font-weight:500;margin-bottom:4px;display:block">城市偏好 <small style="color:var(--text-muted);font-weight:400">可多选，留空=不限</small></span>
+            <div style="display:flex;flex-wrap:wrap;gap:6px" id="cityTags"></div>
+          </div>
+          <div style="margin-top:10px">
+            <label class="subject-chip military-chip" id="militaryChip">提前批军校</label>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="queryButton" class="btn-primary" disabled>
+            查询录取建议
+          </button>
+          <button id="newQueryButton" class="btn-secondary">清空重填</button>
+          <span id="dataStatus" class="status">正在加载数据...</span>
+        </div>
+        <div class="loading-bar"><div class="loading-bar-inner"></div></div>
+      </section>
+
+      <div id="resultArea"></div>
+    </main>
+  </div>
+  <script src="data/school_city.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

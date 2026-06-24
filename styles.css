@@ -179,6 +179,7 @@ button:active { transform:scale(0.97); }
   .volunt-child .child-rank{display:block!important;visibility:visible!important}
   .volunt-item .rank,.volunt-child .child-rank{color:#000!important;font-size:9pt!important}
   .volunt-item .plan,.volunt-child .child-plan{color:#000!important;font-size:9pt!important}
+  .volunt-item .tuition,.volunt-child .child-tuition{color:#000!important;font-size:9pt!important}
   .volunt-item,.volunt-child{min-width:0!important}
   .volunt-item>div,.volunt-child>div{overflow:visible!important}
   .tier-header{margin:6px 0 3px;padding:4px 0;font-size:12pt;background:none!important}

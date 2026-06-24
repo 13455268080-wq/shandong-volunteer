@@ -772,48 +772,46 @@ function resetForm() {
 }
 
 function exportToExcel() {
-  var items = getCheckedItems();
-  if (items.length === 0) { alert('请至少勾选一个志愿'); return; }
-  if (typeof XLSX === 'undefined') {
-    alert('Excel导出库未加载，请刷新页面后重试');
-    return;
+  if (!_lastResult || !_lastResult.items || _lastResult.items.length === 0) {
+    alert('暂无志愿数据，请先查询'); return;
   }
+  var result = _lastResult;
+  var rank = _lastRank;
+  var score = _lastScore;
 
-  const result = _lastResult;
-  const rank = _lastRank;
-  const score = _lastScore;
+  // CSV格式，Excel可直接打开（BOM确保中文不乱码）
+  var BOM = '﻿';
+  var rows = [];
+  rows.push(['序号','档次','院校','专业','学费','选科','录取概率','最低位次','计划','标签'].join(','));
 
-  const rows = [
-    ['山东高考志愿填报助手 - 导出志愿表'],
-    [],
-    ['考生位次', rank],
-    ['考生分数', score || '未填写'],
-    ['生成时间', new Date().toLocaleString('zh-CN')],
-    [],
-    ['序号','档次','院校名称','专业','选科要求','批次','录取概率','最低位次','计划数','标签'],
-  ];
-
-  for (const item of result.items) {
-    const majors = item.children && item.children.length > 1
-      ? item.children.map(c => c.major).join('；')
-      : (item.major || '');
-    const labels = [item.is985 ? '985' : '', item.is211 ? '211' : '', (item.is985 || item.is211) ? '双一流' : ''].filter(Boolean).join(' ');
-    rows.push([item.displayIndex, item.displayTier, item.school, majors, item.subject||'', item.batch||'', item.probability+'%', item.rank||'', item.plan||'', labels]);
+  for (var i = 0; i < result.items.length; i++) {
+    var item = result.items[i];
+    var fee = (item.tuition && item.tuition > 0) ? (item.tuition/10000).toFixed(2)+'万' : '';
+    var labels = [];
+    if (item.is985) labels.push('985');
+    if (item.is211) labels.push('211');
     if (item.children && item.children.length > 1) {
-      for (const c of item.children) {
-        rows.push(['','','','  └ ' + c.major, c.subject||'', '', c.probability+'%', c.rank||'', c.plan||'', '']);
+      // 院校行
+      var majors = item.children.slice(0,3).map(function(c){return c.major;}).join(' | ');
+      if (item.children.length > 3) majors += ' 等'+item.children.length+'个专业';
+      rows.push([item.displayIndex, item.displayTier, item.school, majors, fee, item.subject||'', item.probability+'%', (item.rank||'').toString(), (item.plan||'').toString(), labels.join(' ')].join(','));
+      // 子专业行
+      for (var j = 0; j < item.children.length; j++) {
+        var c = item.children[j];
+        var cfee = (c.tuition && c.tuition > 0) ? (c.tuition/10000).toFixed(2)+'万' : '';
+        rows.push(['', '', '', (j+1)+'. '+c.major, cfee, c.subject||'', (c.probability!=null?c.probability:item.probability)+'%', (c.rank||'').toString(), (c.plan||'').toString(), ''].join(','));
       }
-      rows.push([]);
+    } else {
+      rows.push([item.displayIndex, item.displayTier, item.school, item.major||'', fee, item.subject||'', item.probability+'%', (item.rank||'').toString(), (item.plan||'').toString(), labels.join(' ')].join(','));
     }
   }
 
-  rows.push([],['统计'],['总推荐数', result.summary.selected],['冲刺', result.summary.displayChong || result.summary.chong],['稳妥', result.summary.displayWen || result.summary.wen],['保底', result.summary.displayBao || result.summary.bao]);
-
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{wch:6},{wch:6},{wch:22},{wch:40},{wch:12},{wch:10},{wch:10},{wch:12},{wch:10},{wch:16}];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, '志愿推荐');
-  XLSX.writeFile(wb, '山东高考志愿推荐表.xlsx');
+  var csv = BOM + rows.join('\n');
+  var blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '有数志愿推荐表.csv';
+  a.click();
 }
 
 window.addEventListener('DOMContentLoaded', () => {

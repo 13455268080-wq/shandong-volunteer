@@ -666,7 +666,6 @@ function renderResults(result, rank, score) {
     let html = [
       '<div class="volunt-item tier-' + tierClass + '">',
       '<div class="index">',
-      (_previewMode ? '' : '<input type="checkbox" class="item-check" data-idx="' + item.displayIndex + '" checked onchange="updateCheckedCount()" style="width:14px;height:14px;cursor:pointer;flex-shrink:0" onclick="event.stopPropagation()">'),
       hasChildren ? '<span class="expand-btn">▶</span>' : '',
       '<span>' + item.displayIndex + '</span>',
       '</div>',
@@ -727,10 +726,10 @@ function renderResults(result, rank, score) {
     '4. <strong style="color:var(--chong)">本系统仅供参考，请以官方信息为准</strong>',
     '</div></div>',
     '<div class="panel" style="text-align:center;padding:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">',
-    (_previewMode ? '' : '<div class="panel" style="padding:16px"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span style="font-weight:600;font-size:0.9rem">审核设置</span><label style="font-size:0.85rem;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="selectAllCheck" onchange="toggleSelectAll(this.checked)" checked> 全选</label><span style="color:var(--text-muted);font-size:0.8rem">已选 <strong id="checkedCount">' + result.items.length + '</strong></span><label style="font-size:0.85rem;margin-left:8px">审核学长：<input id="reviewerName" type="text" placeholder="选填" style="width:120px;padding:5px 8px;font-size:0.85rem;border-radius:6px;border:1px solid #e2e8f0"></label></div><div style="margin-top:6px;font-size:0.75rem;color:var(--text-muted)">勾选需要导出/打印的志愿</div></div>'),
+    (_previewMode ? '' : '<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px">展开院校后勾选/取消勾选子专业，打印和导出仅包含已勾选的专业</div>'),
     '<button class="btn-primary" onclick="document.getElementById(\'rankInput\').focus();window.scrollTo({top:0,behavior:\'smooth\'})">查询另一个考生</button>',
     '<button class="btn-secondary" onclick="exportToExcel()">导出 Excel</button>',
-    '<button class="btn-secondary" onclick="window.print()" style="background:#eef2ff;border-color:var(--primary);color:var(--primary)">打印 / 导出 PDF</button>',
+    '<button class="btn-secondary" onclick="printOrPdf()" style="background:#eef2ff;border-color:var(--primary);color:var(--primary)">打印 / 导出 PDF</button>',
     '<span style="color:var(--text-muted);font-size:0.85rem;">直接修改条件重新查询，无需刷新</span>',
     '</div>',
     (_previewMode ? '<div class="panel" style="padding:20px;text-align:center;background:linear-gradient(135deg,#fef2f2,#eef2ff);border:2px dashed var(--primary-light);border-radius:12px"><div style="font-size:1.1rem;font-weight:700;margin-bottom:6px">以上为免费预览，每档仅展示3所代表性院校</div><div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px">完整志愿+趋势预测+风险分析+学长真人复核</div><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><span style="background:#fff;padding:8px 16px;border-radius:8px;font-weight:600;font-size:0.9rem">微信公众号：有数志愿</span><span style="background:var(--primary);color:#fff;padding:8px 16px;border-radius:8px;font-weight:600;font-size:0.9rem">咨询获取完整版</span></div></div>' : '')
@@ -769,6 +768,40 @@ function resetForm() {
   document.getElementById('resultArea').classList.remove('visible');
   document.getElementById('resultArea').innerHTML = '';
   document.getElementById('rankInput').focus();
+}
+
+// ====== 打印/导出PDF（隐藏未勾选子专业 + 过滤空院校） ======
+function printOrPdf() {
+  // 1. 隐藏未勾选的子专业
+  document.querySelectorAll('.child-check').forEach(function(cb) {
+    var row = cb.closest('.volunt-child');
+    if (row) {
+      row.setAttribute('data-print-hidden', cb.checked ? '0' : '1');
+    }
+  });
+  // 2. 隐藏所有子专业都没勾选的院校整行
+  document.querySelectorAll('.volunt-item').forEach(function(item) {
+    var next = item.nextElementSibling;
+    var allChildren = next && next.classList.contains('volunt-children') ? next.querySelectorAll('.volunt-child') : [];
+    var anyChecked = false;
+    allChildren.forEach(function(ch) {
+      var cb = ch.querySelector('.child-check');
+      if (cb && cb.checked) anyChecked = true;
+    });
+    if (allChildren.length > 0 && !anyChecked) {
+      item.setAttribute('data-print-hidden', '1');
+      if (next) next.setAttribute('data-print-hidden', '1');
+    }
+  });
+
+  window.print();
+
+  // 恢复
+  setTimeout(function() {
+    document.querySelectorAll('[data-print-hidden]').forEach(function(el) {
+      el.removeAttribute('data-print-hidden');
+    });
+  }, 500);
 }
 
 function exportToExcel() {

@@ -173,7 +173,7 @@ button:active { transform:scale(0.97); }
   body { background:#fff; color:#000; font-size:10pt; }
   .hero,#queryPanel,.actions,button,.summary-stat,.expand-btn,.prob::after,.prob-fill,.tier-desc{display:none!important}
   .panel{box-shadow:none;border:none;padding:4px 0;margin-top:0}
-  .volunt-item{break-inside:avoid;border-left-width:2px;grid-template-columns:60px 1fr 70px 80px 55px!important}
+  .volunt-item{break-inside:avoid;border-left-width:2px;grid-template-columns:55px 1fr 75px 80px 60px 55px!important}
   .volunt-children{display:block!important}
   .volunt-child{grid-template-columns:20px 1fr 60px 65px 55px 45px!important;display:grid!important}
   .volunt-child .child-rank{display:block!important;visibility:visible!important}
@@ -188,6 +188,7 @@ button:active { transform:scale(0.97); }
   .footer-note strong{color:#666!important}
   @page{margin:1.2cm}
   .print-ad{display:none!important}
+  .volunt-child[data-print-hidden="1"],.volunt-children[data-print-hidden="1"],.volunt-item[data-print-hidden="1"]{display:none!important}
 }
 
 /* Responsive */

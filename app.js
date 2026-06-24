@@ -776,7 +776,10 @@ function resetForm() {
 
 // ====== 打印/导出PDF（直接隐藏未勾选行） ======
 function printOrPdf() {
-  // 1. 真实隐藏未勾选的子专业（set display:none，打印CSS的!important确保打印也不显示）
+  // 预览模式下不展开子专业，直接用window.print
+  if (_previewMode) { window.print(); return; }
+
+  // 1. 真实隐藏未勾选的子专业
   document.querySelectorAll('.child-check').forEach(function(cb) {
     var row = cb.closest('.volunt-child');
     if (row) {

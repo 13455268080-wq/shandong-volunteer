@@ -670,7 +670,11 @@ function renderResults(result, rank, score) {
       '<span>' + item.displayIndex + '</span>',
       '</div>',
       '<div class="info">',
-      '<div class="school">' + item.school + tags + '</div>',
+      '<div class="school">' + item.school + tags +
+        (hasChildren && !_previewMode
+          ? ' <span style="font-size:0.7rem;font-weight:400;cursor:pointer;color:var(--primary);margin-left:8px" onclick="event.stopPropagation();toggleSchoolChildren(\'' + item.school.replace(/'/g, "\\'") + '\',true)">[全选]</span> <span style="font-size:0.7rem;font-weight:400;cursor:pointer;color:var(--text-muted)" onclick="event.stopPropagation();toggleSchoolChildren(\'' + item.school.replace(/'/g, "\\'") + '\',false)">[全不选]</span>'
+          : '') +
+      '</div>',
       '<div class="major">' + majorText + '</div>',
       '</div>',
       '<div class="prob">' + (hasChildren ? '<span style="font-size:0.72rem;color:var(--text-muted)">展开▶</span>' : '<span>' + item.probability + '%</span><div class="prob-fill" style="width:' + item.probability + '%"></div>') + '</div>',
@@ -770,19 +774,23 @@ function resetForm() {
   document.getElementById('rankInput').focus();
 }
 
-// ====== 打印/导出PDF（隐藏未勾选子专业 + 过滤空院校） ======
+// ====== 打印/导出PDF（直接隐藏未勾选行） ======
 function printOrPdf() {
-  // 1. 隐藏未勾选的子专业
+  // 1. 真实隐藏未勾选的子专业（set display:none，打印CSS的!important确保打印也不显示）
   document.querySelectorAll('.child-check').forEach(function(cb) {
     var row = cb.closest('.volunt-child');
     if (row) {
-      row.setAttribute('data-print-hidden', cb.checked ? '0' : '1');
+      if (!cb.checked) {
+        row.setAttribute('data-print-hidden', '1');
+        row.style.display = 'none';
+      }
     }
   });
-  // 2. 隐藏所有子专业都没勾选的院校整行
+  // 2. 整所院校所有子专业都没勾选 → 隐藏院校行
   document.querySelectorAll('.volunt-item').forEach(function(item) {
     var next = item.nextElementSibling;
-    var allChildren = next && next.classList.contains('volunt-children') ? next.querySelectorAll('.volunt-child') : [];
+    var childrenDiv = next && next.classList.contains('volunt-children') ? next : null;
+    var allChildren = childrenDiv ? childrenDiv.querySelectorAll('.volunt-child') : [];
     var anyChecked = false;
     allChildren.forEach(function(ch) {
       var cb = ch.querySelector('.child-check');
@@ -790,7 +798,8 @@ function printOrPdf() {
     });
     if (allChildren.length > 0 && !anyChecked) {
       item.setAttribute('data-print-hidden', '1');
-      if (next) next.setAttribute('data-print-hidden', '1');
+      item.style.display = 'none';
+      if (childrenDiv) { childrenDiv.setAttribute('data-print-hidden', '1'); childrenDiv.style.display = 'none'; }
     }
   });
 
@@ -799,9 +808,21 @@ function printOrPdf() {
   // 恢复
   setTimeout(function() {
     document.querySelectorAll('[data-print-hidden]').forEach(function(el) {
+      if (el.classList.contains('volunt-child') || el.classList.contains('volunt-children') || el.classList.contains('volunt-item')) {
+        el.style.display = '';
+      }
       el.removeAttribute('data-print-hidden');
     });
-  }, 500);
+  }, 800);
+}
+
+// ====== 院校子专业全选/全不选 ======
+function toggleSchoolChildren(schoolName, check) {
+  document.querySelectorAll('.child-check').forEach(function(cb) {
+    if (cb.getAttribute('data-parent') === schoolName) {
+      cb.checked = check;
+    }
+  });
 }
 
 function exportToExcel() {

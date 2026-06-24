@@ -650,14 +650,9 @@ function renderResults(result, rank, score) {
   const renderItem = (item) => {
     var hasChildren = item.children && item.children.length > 1;
     var majorText;
-    if (_previewMode) {
-      hasChildren = false;
-      majorText = item.major || (item.children && item.children.length > 0 ? item.children[0].major : '');
-    } else {
-      majorText = hasChildren
+    majorText = hasChildren
         ? item.children.slice(0, 3).map(function(c){return c.major;}).join('、') + (item.children.length > 3 ? ' 等' + item.children.length + '个专业' : '')
         : (item.major || '');
-    }
     const tierClass = item.displayTier === '冲' ? 'chong' : item.displayTier === '稳' ? 'wen' : 'bao';
     const tags = (item.is985 ? ' <span class="tag tag-985">985</span>' : '') +
       (item.is211 ? ' <span class="tag tag-211">211</span>' : '') +
@@ -671,7 +666,7 @@ function renderResults(result, rank, score) {
       '</div>',
       '<div class="info">',
       '<div class="school">' + item.school + tags +
-        (hasChildren && !_previewMode
+        (hasChildren
           ? ' <span style="font-size:0.7rem;font-weight:400;cursor:pointer;color:var(--primary);margin-left:8px" onclick="event.stopPropagation();toggleSchoolChildren(\'' + item.school.replace(/'/g, "\\'") + '\',true)">[全选]</span> <span style="font-size:0.7rem;font-weight:400;cursor:pointer;color:var(--text-muted)" onclick="event.stopPropagation();toggleSchoolChildren(\'' + item.school.replace(/'/g, "\\'") + '\',false)">[全不选]</span>'
           : '') +
       '</div>',
@@ -689,7 +684,7 @@ function renderResults(result, rank, score) {
       item.children.forEach((c, i) => {
         html += [
           '<div class="volunt-child tier-' + tierClass + '">',
-          (_previewMode ? '' : '<input type="checkbox" class="child-check" data-parent="' + item.school + '" data-major="' + c.major + '" checked onchange="updateCheckedCount()" style="width:12px;height:12px;cursor:pointer;flex-shrink:0" onclick="event.stopPropagation()">'),
+          '<input type="checkbox" class="child-check" data-parent="' + item.school + '" data-major="' + c.major + '" checked onchange="updateCheckedCount()" style="width:12px;height:12px;cursor:pointer;flex-shrink:0" onclick="event.stopPropagation()">',
           '<div class="child-major">' + (i + 1) + '. ' + c.major + (c.subject && c.subject !== '不限' ? ' <span class="tag">' + c.subject + '</span>' : '') + (c.trend && c.trend.isContinuousHot ? ' <span class="tag" style="background:#fee2e2;color:#dc2626">变热</span>' : '') + (c.trend && c.trend.volatilityLevel === 'high' ? ' <span class="tag" style="background:#fef3c7;color:#92400e">波动</span>' : '') + '</div>',
           '<div class="child-prob">' + (c.probability != null ? c.probability : item.probability) + '%</div>',
           '<div class="child-rank">' + (c.rank ? '位次 ' + c.rank.toLocaleString() : '') + '</div>',
